@@ -1,0 +1,115 @@
+{
+  "name": "WhatsApp Incoming Message Handler",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-webhook",
+        "options": {}
+      },
+      "id": "1",
+      "name": "WhatsApp Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Extract message data from WhatsApp webhook\nconst body = items[0].json;\n\n// Check if this is a message event\nif (!body.entry || !body.entry[0].changes[0].value.messages) {\n  return [{json: {skip: true}}];\n}\n\nconst entry = body.entry[0];\nconst changes = entry.changes[0];\nconst value = changes.value;\nconst message = value.messages[0];\nconst contact = value.contacts[0];\n\nreturn [{\n  json: {\n    message_id: message.id,\n    from: message.from,\n    timestamp: message.timestamp,\n    type: message.type,\n    text: message.text ? message.text.body : '',\n    customer_name: contact.profile.name,\n    customer_phone: contact.wa_id,\n    phone_number_id: value.metadata.phone_number_id,\n    display_phone_number: value.metadata.display_phone_number\n  }\n}];"
+      },
+      "id": "2",
+      "name": "Extract Message",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Prepare data for AI classification\nconst input = items[0].json;\n\nreturn [{\n  json: {\n    ...input,\n    prompt: `Classify this WhatsApp message: \"${input.text}\"\n\nCategories:\n- order: wants to place an order\n- greeting: saying hello\n- question: asking about products/prices\n- confirmation: confirming something (sí, dale)\n- lo_de_siempre: wants their usual order\n- other: none of above\n\nRespond with JSON only: {\"intent\": \"category\", \"confidence\": 0.9}`\n  }\n}];"
+      },
+      "id": "3",
+      "name": "Prepare AI Prompt",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "model": "gpt-3.5-turbo",
+        "messages": {
+          "values": [
+            {
+              "content": "={{$json.prompt}}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "id": "4",
+      "name": "OpenAI",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Parse AI response and route\nconst aiResponse = items[0].json.message.content;\nconst originalData = items[0].json;\n\nlet parsed;\ntry {\n  parsed = JSON.parse(aiResponse);\n} catch(e) {\n  parsed = {intent: 'other', confidence: 0};\n}\n\nreturn [{\n  json: {\n    intent: parsed.intent,\n    confidence: parsed.confidence,\n    customer_phone: originalData.customer_phone || '',\n    customer_name: originalData.customer_name || '',\n    text: originalData.text || '',\n    phone_number_id: originalData.phone_number_id || ''\n  }\n}];"
+      },
+      "id": "5",
+      "name": "Parse Response",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1050, 300]
+    }
+  ],
+  "connections": {
+    "WhatsApp Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Message": {
+      "main": [
+        [
+          {
+            "node": "Prepare AI Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare AI Prompt": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Parse Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {}
+}

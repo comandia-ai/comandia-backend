@@ -1,0 +1,69 @@
+{
+  "name": "Greeting Response",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "greeting",
+        "options": {}
+      },
+      "id": "1",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const input = items[0].json;\nconst name = input.customer_name || 'amigo';\n\nconst message = `¡Hola ${name}! 👋\n\n¿En qué puedo ayudarte?\n\n📦 Hacer pedido - escribe los productos\n🔄 Lo de siempre - repite tu último pedido\n❓ Preguntas - consulta precios\n\n¡Estoy aquí para ayudarte!`;\n\nreturn [{\n  json: {\n    to: input.customer_phone,\n    message: message,\n    phone_number_id: input.phone_number_id\n  }\n}];"
+      },
+      "id": "2",
+      "name": "Generate Greeting",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v17.0/{{$json.phone_number_id}}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"messaging_product\":\"whatsapp\",\"to\":\"{{$json.to}}\",\"type\":\"text\",\"text\":{\"body\":\"{{$json.message}}\"}}",
+        "options": {}
+      },
+      "id": "3",
+      "name": "Send Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [650, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Generate Greeting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Greeting": {
+      "main": [
+        [
+          {
+            "node": "Send Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {}
+}
