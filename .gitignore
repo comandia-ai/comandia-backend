@@ -1,3 +1,5 @@
 /node_modules
 *.pdf
 *.xlsx
+*.png
+n8n/workflows/hito4_workflow.json
