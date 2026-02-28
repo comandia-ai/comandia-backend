@@ -125,7 +125,7 @@ export function Dashboard() {
         <Link to="/whatsapp">
           <Button variant="whatsapp" className="gap-2">
             <MessageCircle className="w-4 h-4" />
-            WhatsApp Demo
+            WhatsApp
           </Button>
         </Link>
       </div>

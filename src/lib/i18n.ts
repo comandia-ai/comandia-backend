@@ -9,7 +9,7 @@ export const translations = {
     'nav.orders': 'Pedidos',
     'nav.products': 'Productos',
     'nav.customers': 'Clientes',
-    'nav.whatsapp': 'WhatsApp Demo',
+    'nav.whatsapp': 'WhatsApp',
     'nav.analytics': 'Analiticas',
     'nav.settings': 'Configuracion',
     'nav.logout': 'Cerrar Sesion',
@@ -112,8 +112,8 @@ export const translations = {
     'customers.inactive': 'Inactivo',
 
     // WhatsApp
-    'whatsapp.title': 'Demostracion WhatsApp',
-    'whatsapp.subtitle': 'Simulacion de conversaciones con IA',
+    'whatsapp.title': 'WhatsApp',
+    'whatsapp.subtitle': 'Conversaciones con clientes',
     'whatsapp.selectConversation': 'Selecciona una conversacion',
     'whatsapp.typeMessage': 'Escribe un mensaje...',
     'whatsapp.send': 'Enviar',
@@ -192,7 +192,7 @@ export const translations = {
     'nav.orders': 'Orders',
     'nav.products': 'Products',
     'nav.customers': 'Customers',
-    'nav.whatsapp': 'WhatsApp Demo',
+    'nav.whatsapp': 'WhatsApp',
     'nav.analytics': 'Analytics',
     'nav.settings': 'Settings',
     'nav.logout': 'Logout',
@@ -295,8 +295,8 @@ export const translations = {
     'customers.inactive': 'Inactive',
 
     // WhatsApp
-    'whatsapp.title': 'WhatsApp Demo',
-    'whatsapp.subtitle': 'AI Conversation Simulation',
+    'whatsapp.title': 'WhatsApp',
+    'whatsapp.subtitle': 'Customer Conversations',
     'whatsapp.selectConversation': 'Select a conversation',
     'whatsapp.typeMessage': 'Type a message...',
     'whatsapp.send': 'Send',

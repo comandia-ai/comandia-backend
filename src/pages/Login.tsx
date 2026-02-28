@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MessageCircle, Building2, Mail, Lock, ArrowRight } from 'lucide-react';
+import { Building2, Mail, Lock, ArrowRight, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -61,12 +61,10 @@ export function Login() {
 
         <div className="relative z-10 flex flex-col justify-center px-12 lg:px-16">
           <div className="flex items-center gap-3 mb-8">
-            <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-              <MessageCircle className="w-8 h-8 text-white" />
-            </div>
+            <img src="/comandia-logo.jpeg" alt="Comandia" className="w-14 h-14 rounded-2xl object-cover" />
             <div>
-              <h1 className="text-3xl font-bold text-white">PedidosYA</h1>
-              <p className="text-white/80 text-sm">WhatsApp B2B SaaS</p>
+              <h1 className="text-3xl font-bold text-white">Comandia</h1>
+              <p className="text-white/80 text-sm">WhatsApp Order Management</p>
             </div>
           </div>
 
@@ -129,12 +127,10 @@ export function Login() {
 
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-12 h-12 bg-gradient-to-br from-whatsapp to-whatsapp-dark rounded-xl flex items-center justify-center">
-              <MessageCircle className="w-7 h-7 text-white" />
-            </div>
+            <img src="/comandia-logo.jpeg" alt="Comandia" className="w-12 h-12 rounded-xl object-cover" />
             <div>
-              <h1 className="text-2xl font-bold text-slate-800">PedidosYA</h1>
-              <p className="text-slate-500 text-sm">WhatsApp B2B SaaS</p>
+              <h1 className="text-2xl font-bold text-slate-800">Comandia</h1>
+              <p className="text-slate-500 text-sm">WhatsApp Order Management</p>
             </div>
           </div>
 
