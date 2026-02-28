@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   AreaChart,
   Area,
@@ -23,6 +23,7 @@ import {
   Package,
   Calendar,
   Download,
+  Loader2,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,8 +37,7 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useAppStore } from '@/hooks/useStore';
-import { generateDashboardStats } from '@/data/mockData';
+import { useAppStore, useDashboardStore } from '@/hooks/useStore';
 import { cn } from '@/lib/utils';
 
 const COLORS = ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'];
@@ -45,14 +45,24 @@ const COLORS = ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'
 export function Analytics() {
   const { t, currency, language } = useLanguage();
   const { currentTenant } = useAppStore();
+  const { stats, loading, loadStats } = useDashboardStore();
   const [dateRange, setDateRange] = useState('7d');
 
-  const stats = useMemo(() => {
-    if (!currentTenant) return null;
-    return generateDashboardStats(currentTenant.id);
-  }, [currentTenant]);
+  useEffect(() => {
+    if (currentTenant) {
+      loadStats(currentTenant.id);
+    }
+  }, [currentTenant, loadStats]);
 
-  if (!stats || !currentTenant) return null;
+  if (!currentTenant) return null;
+
+  if (loading || !stats) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   const kpiCards = [
     {

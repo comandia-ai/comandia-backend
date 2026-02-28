@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Search,
   Plus,
@@ -40,8 +40,15 @@ import { Customer } from '@/types';
 export function Customers() {
   const { t, currency, date, language } = useLanguage();
   const { currentTenant } = useAppStore();
-  const { getCustomersByTenant, addCustomer, updateCustomer, deleteCustomer } = useCustomersStore();
-  const { getOrdersByTenant } = useOrdersStore();
+  const { getCustomersByTenant, addCustomer, updateCustomer, deleteCustomer, loadCustomers } = useCustomersStore();
+  const { getOrdersByTenant, loadOrders } = useOrdersStore();
+
+  useEffect(() => {
+    if (currentTenant) {
+      loadCustomers(currentTenant.id);
+      loadOrders(currentTenant.id);
+    }
+  }, [currentTenant, loadCustomers, loadOrders]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [segmentFilter, setSegmentFilter] = useState<string>('all');

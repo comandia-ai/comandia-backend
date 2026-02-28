@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Search,
   Plus,
@@ -38,7 +38,11 @@ import { Product } from '@/types';
 export function Products() {
   const { t, currency, language } = useLanguage();
   const { currentTenant } = useAppStore();
-  const { getProductsByTenant, addProduct, updateProduct, deleteProduct } = useProductsStore();
+  const { getProductsByTenant, addProduct, updateProduct, deleteProduct, loadProducts } = useProductsStore();
+
+  useEffect(() => {
+    if (currentTenant) loadProducts(currentTenant.id);
+  }, [currentTenant, loadProducts]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');

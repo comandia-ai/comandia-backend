@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COMANDIA - Project Report</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color: #1e293b;
+    line-height: 1.7;
+    font-size: 11pt;
+    background: #fff;
+  }
+
+  /* Cover Page */
+  .cover {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 40%, #25d366 100%);
+    color: white;
+    text-align: center;
+    page-break-after: always;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -30%;
+    width: 80%;
+    height: 200%;
+    background: radial-gradient(ellipse, rgba(37, 211, 102, 0.15) 0%, transparent 70%);
+  }
+
+  .cover-logo {
+    width: 90px;
+    height: 90px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+    border: 1px solid rgba(255,255,255,0.1);
+    position: relative;
+    z-index: 2;
+  }
+
+  .cover-logo svg {
+    width: 50px;
+    height: 50px;
+  }
+
+  .cover h1 {
+    font-size: 48pt;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cover .subtitle {
+    font-size: 16pt;
+    font-weight: 300;
+    opacity: 0.85;
+    margin-bottom: 48px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cover .divider {
+    width: 80px;
+    height: 3px;
+    background: #25d366;
+    margin: 0 auto 48px;
+    border-radius: 2px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .cover-info {
+    position: relative;
+    z-index: 2;
+    background: rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 32px 48px;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+
+  .cover-info p {
+    font-size: 11pt;
+    opacity: 0.9;
+    margin: 6px 0;
+  }
+
+  .cover-info .label {
+    font-weight: 600;
+    opacity: 1;
+    color: #25d366;
+  }
+
+  .cover-footer {
+    position: absolute;
+    bottom: 40px;
+    font-size: 9pt;
+    opacity: 0.5;
+    z-index: 2;
+  }
+
+  /* Page Styles */
+  .page {
+    padding: 48px 56px;
+    page-break-after: always;
+  }
+
+  .page:last-child { page-break-after: avoid; }
+
+  .page-flow {
+    padding: 48px 56px;
+    page-break-after: auto;
+  }
+
+  /* Section Headers */
+  .section-number {
+    display: inline-block;
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #0f172a, #1e3a5f);
+    color: white;
+    border-radius: 10px;
+    text-align: center;
+    line-height: 36px;
+    font-weight: 700;
+    font-size: 14pt;
+    margin-right: 14px;
+    vertical-align: middle;
+  }
+
+  h2 {
+    font-size: 22pt;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+  }
+
+  h2 .text { vertical-align: middle; }
+
+  .section-subtitle {
+    font-size: 11pt;
+    color: #64748b;
+    margin-bottom: 28px;
+    padding-left: 50px;
+  }
+
+  h3 {
+    font-size: 14pt;
+    font-weight: 600;
+    color: #1e3a5f;
+    margin: 24px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  h4 {
+    font-size: 12pt;
+    font-weight: 600;
+    color: #334155;
+    margin: 16px 0 8px;
+  }
+
+  p { margin-bottom: 10px; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 24px;
+    font-size: 10pt;
+  }
+
+  thead th {
+    background: #0f172a;
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 9.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  thead th:first-child { border-radius: 8px 0 0 0; }
+  thead th:last-child { border-radius: 0 8px 0 0; }
+
+  tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: top;
+  }
+
+  tbody tr:nth-child(even) { background: #f8fafc; }
+  tbody tr:hover { background: #f1f5f9; }
+
+  /* Status Badges */
+  .badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 9pt;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .badge-complete {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  .badge-budget {
+    background: #dbeafe;
+    color: #1d4ed8;
+  }
+
+  /* Cards */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin: 16px 0 24px;
+  }
+
+  .card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16pt;
+  }
+
+  .card-title {
+    font-size: 11pt;
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  .card p {
+    font-size: 10pt;
+    color: #475569;
+    margin: 0;
+  }
+
+  /* Highlight Box */
+  .highlight-box {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border: 1px solid #bbf7d0;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 20px 0;
+  }
+
+  .highlight-box.blue {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border-color: #93c5fd;
+  }
+
+  .highlight-box.amber {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border-color: #fcd34d;
+  }
+
+  /* Flow Diagram */
+  .flow {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    margin: 16px 0 24px;
+    font-family: 'Courier New', monospace;
+    font-size: 9.5pt;
+    line-height: 1.8;
+    color: #334155;
+  }
+
+  .flow .step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0;
+  }
+
+  .flow .arrow {
+    color: #25d366;
+    font-weight: bold;
+  }
+
+  /* Lists */
+  ul, ol {
+    margin: 8px 0 16px 24px;
+  }
+
+  li {
+    margin: 4px 0;
+    padding-left: 4px;
+  }
+
+  li::marker {
+    color: #25d366;
+    font-weight: 700;
+  }
+
+  /* Tech Stack */
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  .tech-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+
+  .tech-item .name {
+    font-weight: 600;
+    font-size: 10pt;
+    color: #0f172a;
+    display: block;
+  }
+
+  .tech-item .desc {
+    font-size: 8.5pt;
+    color: #64748b;
+    margin-top: 2px;
+    display: block;
+  }
+
+  /* KPI Section */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 16px 0 24px;
+  }
+
+  .kpi-card {
+    text-align: center;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px 12px;
+  }
+
+  .kpi-value {
+    font-size: 24pt;
+    font-weight: 800;
+    color: #0f172a;
+    display: block;
+  }
+
+  .kpi-label {
+    font-size: 9pt;
+    color: #64748b;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    margin-top: 4px;
+  }
+
+  /* Timeline */
+  .timeline {
+    position: relative;
+    margin: 20px 0 20px 20px;
+    padding-left: 28px;
+    border-left: 3px solid #e2e8f0;
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 24px;
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -35px;
+    top: 4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #25d366;
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px #25d366;
+  }
+
+  .timeline-item .date {
+    font-size: 9pt;
+    font-weight: 600;
+    color: #25d366;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .timeline-item .title {
+    font-size: 12pt;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 2px 0 4px;
+  }
+
+  .timeline-item .desc {
+    font-size: 10pt;
+    color: #475569;
+  }
+
+  /* Footer */
+  .page-footer {
+    position: fixed;
+    bottom: 20px;
+    left: 56px;
+    right: 56px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 8pt;
+    color: #94a3b8;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 8px;
+  }
+
+  /* Print Styles */
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { padding: 40px 48px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover">
+  <div class="cover-logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      <path d="M8 10h.01M12 10h.01M16 10h.01" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <h1>COMANDIA</h1>
+  <p class="subtitle">WhatsApp B2B SaaS Platform</p>
+  <div class="divider"></div>
+  <div class="cover-info">
+    <p><span class="label">Project:</span> Multi-Tenant Order Management via WhatsApp</p>
+    <p><span class="label">Client:</span> WritingXpert (Davide)</p>
+    <p><span class="label">Developer:</span> Chadwick</p>
+    <p><span class="label">Date:</span> February 2026</p>
+    <p><span class="label">Budget:</span> USD $2,000</p>
+  </div>
+  <p class="cover-footer">Confidential &mdash; For Internal Use Only</p>
+</div>
+
+<!-- PAGE 1: Executive Summary -->
+<div class="page">
+  <h2><span class="section-number">1</span> <span class="text">Executive Summary</span></h2>
+  <p class="section-subtitle">Project overview and key outcomes</p>
+
+  <p>
+    COMANDIA is a multi-tenant SaaS platform designed for Colombian wholesalers to receive and manage
+    orders from retailers via WhatsApp. The system leverages conversational AI to process natural language
+    messages, automatically creating orders, managing product catalogs, and providing business analytics
+    through a real-time dashboard.
+  </p>
+
+  <p>
+    The project was completed across six milestones over a six-week development cycle, delivering a fully
+    functional MVP that includes multi-tenant data isolation, WhatsApp integration via Twilio, AI-powered
+    order processing with GPT-4o-mini, and a React-based analytics dashboard connected to live production data.
+  </p>
+
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <span class="kpi-value">6</span>
+      <span class="kpi-label">Milestones</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-value">9</span>
+      <span class="kpi-label">DB Tables</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-value">117</span>
+      <span class="kpi-label">Products</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-value">19</span>
+      <span class="kpi-label">RLS Policies</span>
+    </div>
+  </div>
+
+  <h3>Key Deliverables</h3>
+  <ul>
+    <li>Multi-tenant PostgreSQL database with Row Level Security for complete data isolation</li>
+    <li>WhatsApp order flow: customer sends a message, AI processes it, and creates orders automatically</li>
+    <li>Conversational AI with sales optimization rules (upselling, combo suggestions, star products)</li>
+    <li>Abandoned cart recovery system that re-engages customers who drop off mid-order</li>
+    <li>Real-time dashboard with KPIs, charts, and exportable analytics connected to Supabase</li>
+    <li>Comprehensive operations guide for managing tenants, WhatsApp, and backups</li>
+  </ul>
+
+  <h3>Technology Stack</h3>
+  <div class="tech-grid">
+    <div class="tech-item">
+      <span class="name">Supabase</span>
+      <span class="desc">PostgreSQL + Auth + RLS</span>
+    </div>
+    <div class="tech-item">
+      <span class="name">Twilio</span>
+      <span class="desc">WhatsApp API</span>
+    </div>
+    <div class="tech-item">
+      <span class="name">OpenAI GPT-4o</span>
+      <span class="desc">Conversational AI</span>
+    </div>
+    <div class="tech-item">
+      <span class="name">n8n Cloud</span>
+      <span class="desc">Workflow Automation</span>
+    </div>
+    <div class="tech-item">
+      <span class="name">React + TypeScript</span>
+      <span class="desc">Frontend Dashboard</span>
+    </div>
+    <div class="tech-item">
+      <span class="name">Vite + Tailwind</span>
+      <span class="desc">Build & Styling</span>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2: Milestone Detail -->
+<div class="page">
+  <h2><span class="section-number">2</span> <span class="text">Milestone Breakdown</span></h2>
+  <p class="section-subtitle">Detailed deliverables for each milestone</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 60px;">Hito</th>
+        <th>Description</th>
+        <th style="width: 90px;">Budget</th>
+        <th style="width: 90px;">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="font-weight: 700; text-align: center;">1</td>
+        <td>Multi-tenant architecture &amp; base setup</td>
+        <td><span class="badge badge-budget">$600</span></td>
+        <td><span class="badge badge-complete">Complete</span></td>
+      </tr>
+      <tr>
+        <td style="font-weight: 700; text-align: center;">2</td>
+        <td>Order data model, CRUD &amp; order flow</td>
+        <td><span class="badge badge-budget">$500</span></td>
+        <td><span class="badge badge-complete">Complete</span></td>
+      </tr>
+      <tr>
+        <td style="font-weight: 700; text-align: center;">3</td>
+        <td>WhatsApp integration (Twilio + n8n)</td>
+        <td><span class="badge badge-budget">$350</span></td>
+        <td><span class="badge badge-complete">Complete</span></td>
+      </tr>
+      <tr>
+        <td style="font-weight: 700; text-align: center;">4</td>
+        <td>Dashboard with KPIs &amp; analytics</td>
+        <td><span class="badge badge-budget">$300</span></td>
+        <td><span class="badge badge-complete">Complete</span></td>
+      </tr>
+      <tr>
+        <td style="font-weight: 700; text-align: center;">5</td>
+        <td>First client onboarding (Mango Biche)</td>
+        <td><span class="badge badge-budget">$150</span></td>
+        <td><span class="badge badge-complete">Complete</span></td>
+      </tr>
+      <tr>
+        <td style="font-weight: 700; text-align: center;">6</td>
+        <td>Documentation, QA &amp; operations guide</td>
+        <td><span class="badge badge-budget">$100</span></td>
+        <td><span class="badge badge-complete">Complete</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="highlight-box">
+    <strong>Total Investment:</strong> USD $2,000 &mdash; All six milestones delivered and verified.
+  </div>
+
+  <h3>Hito 1 &mdash; Multi-Tenant Architecture ($600)</h3>
+  <p>Established the foundation for the entire platform with a robust multi-tenant PostgreSQL schema hosted on Supabase.</p>
+  <ul>
+    <li><strong>9 core tables</strong> designed with <code>tenant_id</code> foreign keys on every table</li>
+    <li><strong>19 Row Level Security policies</strong> ensuring complete data isolation between tenants</li>
+    <li>Helper functions: <code>get_user_tenant_id()</code> and <code>is_super_admin()</code></li>
+    <li>Automatic <code>updated_at</code> triggers on 7 tables</li>
+    <li>Customer statistics auto-update trigger on order insert/update</li>
+    <li>Documented tenant creation flow with step-by-step SQL instructions</li>
+  </ul>
+
+  <h3>Hito 2 &mdash; Order Data Model ($500)</h3>
+  <p>Built the complete relational data model for products, customers, orders, and order items.</p>
+  <ul>
+    <li>Products table with SKU, pricing, stock tracking, categories, and tags</li>
+    <li>Orders table with full lifecycle: pending, confirmed, preparing, shipped, delivered, cancelled</li>
+    <li>Order items with product snapshots (name, SKU, price at time of order)</li>
+    <li><strong>117 products</strong> seeded for Mango Biche across 4 categories (Dulces, Acidos, Especiales, Adicionales)</li>
+    <li>Customer segmentation: new, regular, VIP, inactive</li>
+  </ul>
+
+  <h3>Hito 3 &mdash; WhatsApp Integration ($350)</h3>
+  <p>Integrated WhatsApp messaging through Twilio API with n8n workflow automation.</p>
+  <ul>
+    <li>Twilio WhatsApp Sandbox configured with webhook to n8n</li>
+    <li>Complete message flow: receive, process with AI, respond, and save to database</li>
+    <li>Conversation state management via JSONB metadata column</li>
+    <li>State machine: idle &rarr; ordering &rarr; collecting delivery info &rarr; confirming &rarr; idle</li>
+    <li>Automatic customer creation for new phone numbers</li>
+  </ul>
+
+  <h3>Hito 4 &mdash; Dashboard &amp; Analytics ($300)</h3>
+  <p>Built a responsive React dashboard with real-time data from Supabase.</p>
+  <ul>
+    <li>KPI cards: Total Sales, Orders Today, Active Customers, Pending Orders, Average Order Value</li>
+    <li>Interactive charts: Sales trend (7-day area chart), Orders by Status (pie), Top Products (bar), Sales by Category</li>
+    <li>Top customers ranking table with order count and total spent</li>
+    <li>Recent orders list with status badges and source indicators</li>
+    <li>Date range filters (7d, 30d, 90d) and CSV data export</li>
+    <li>Bilingual interface: Spanish and English toggle</li>
+    <li><strong>Connected to live Supabase data</strong> &mdash; not mock data</li>
+  </ul>
+
+  <h3>Hito 5 &mdash; First Client Onboarding ($150)</h3>
+  <p>Configured and tested the complete system for the first production tenant: Mango Biche.</p>
+  <ul>
+    <li>Tenant created in Supabase with full configuration</li>
+    <li>117 products loaded across 4 categories with accurate pricing</li>
+    <li>WhatsApp number connected and verified through Twilio</li>
+    <li>End-to-end order flow tested: greeting &rarr; product selection &rarr; delivery info &rarr; confirmation</li>
+    <li>AI sales rules activated: upselling, combo suggestions, star products, elegant closing</li>
+    <li>PDF catalog generation for WhatsApp delivery</li>
+  </ul>
+
+  <h3>Hito 6 &mdash; Documentation &amp; QA ($100)</h3>
+  <p>Final quality assurance, bug fixes, and comprehensive operational documentation.</p>
+  <ul>
+    <li>Operations guide with 5 sections: add tenants, configure WhatsApp, backups, deactivation, monitoring</li>
+    <li>Backend README with complete technical documentation</li>
+    <li>Project cleanup: removed 19 unnecessary files, optimized .gitignore</li>
+    <li>Frontend converted from mock data to live Supabase connection</li>
+    <li>Full build verification: TypeScript type check + Vite production build</li>
+  </ul>
+
+  <h2 style="margin-top: 32px;"><span class="section-number">3</span> <span class="text">System Architecture</span></h2>
+  <p class="section-subtitle">How the components work together</p>
+
+  <div class="flow">
+    <div class="step"><span class="arrow">1.</span> Customer sends WhatsApp message</div>
+    <div class="step"><span class="arrow">2.</span> Twilio receives message &rarr; forwards to n8n webhook</div>
+    <div class="step"><span class="arrow">3.</span> n8n: Get Conversation Context (Supabase: customer, history, products)</div>
+    <div class="step"><span class="arrow">4.</span> n8n: Build Prompt (system prompt + catalog + sales rules)</div>
+    <div class="step"><span class="arrow">5.</span> n8n: OpenAI GPT-4o-mini (conversational AI response)</div>
+    <div class="step"><span class="arrow">6.</span> n8n: Parse Response (extract JSON action + message)</div>
+    <div class="step"><span class="arrow">7.</span> n8n: Process Action (create order in Supabase if needed)</div>
+    <div class="step"><span class="arrow">8.</span> n8n: Send WhatsApp Reply (via Twilio API + optional PDF catalog)</div>
+    <div class="step"><span class="arrow">9.</span> n8n: Save Messages (inbound + outbound to Supabase)</div>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: #dcfce7;">&#128172;</div>
+        <span class="card-title">WhatsApp Layer</span>
+      </div>
+      <p>Twilio API handles message routing. Supports text, media, and PDF catalog delivery.</p>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: #dbeafe;">&#129302;</div>
+        <span class="card-title">AI Brain</span>
+      </div>
+      <p>GPT-4o-mini with sales-optimized prompts. Handles product lookup, pricing, and order creation.</p>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: #fef3c7;">&#9881;</div>
+        <span class="card-title">Automation Engine</span>
+      </div>
+      <p>n8n Cloud workflows orchestrate the entire message-to-order pipeline.</p>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: #f3e8ff;">&#128202;</div>
+        <span class="card-title">Dashboard</span>
+      </div>
+      <p>React + Recharts frontend connected to live Supabase data with real-time analytics.</p>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: AI Sales Features + Database -->
+<div class="page">
+  <h2><span class="section-number">4</span> <span class="text">AI Sales Optimization</span></h2>
+  <p class="section-subtitle">Intelligent sales rules to increase average ticket value</p>
+
+  <p>
+    The AI assistant goes beyond simple order-taking. It actively drives sales through intelligent
+    conversation rules designed to increase the average order value while maintaining a natural,
+    friendly tone in Spanish.
+  </p>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: #dcfce7;">&#8593;</div>
+        <span class="card-title">Size Upsell</span>
+      </div>
+      <p>When a customer selects 14oz, the bot suggests 16oz: "Por solo $2,000 mas llevas el de 16oz." 12oz is restricted to in-store only for delivery orders.</p>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: #dbeafe;">&#127860;</div>
+        <span class="card-title">Combo Suggestion</span>
+      </div>
+      <p>If a customer orders 2 items, the AI suggests a third with an advantage to increase the basket size.</p>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: #fef3c7;">&#11088;</div>
+        <span class="card-title">Star Products</span>
+      </div>
+      <p>The AI always recommends Mango Biche and Cafe as top picks, the highest-margin products in the catalog.</p>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: #f3e8ff;">&#10004;</div>
+        <span class="card-title">Elegant Closing</span>
+      </div>
+      <p>Uses persuasive closing phrases: "Estoy listo para enviarlo y que lo disfrutes bien frio."</p>
+    </div>
+  </div>
+
+  <h3>Abandoned Cart Recovery</h3>
+  <p>
+    A separate n8n workflow runs every 30 minutes, checking for conversations stuck in ordering states
+    (ordering, collecting address, phone, or payment) for more than 30 minutes. It sends a personalized
+    WhatsApp follow-up message to recover the sale.
+  </p>
+
+  <div class="highlight-box amber">
+    <strong>Example recovery message:</strong> "Hola! Vi que estabas armando un pedido hace un rato.
+    Tus productos te estan esperando. Quieres que continuemos?"
+  </div>
+
+  <h3>Order History Recommendations</h3>
+  <p>
+    For returning customers, the AI references their last 3 orders: "La ultima vez pediste Mango Biche
+    de 16oz, quieres repetir?" This creates a faster, more personalized ordering experience.
+  </p>
+
+  <h2 style="margin-top: 36px;"><span class="section-number">5</span> <span class="text">Database Schema</span></h2>
+  <p class="section-subtitle">9 core tables with complete multi-tenant isolation</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Table</th>
+        <th>Description</th>
+        <th>Key Fields</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>tenants</strong></td>
+        <td>Wholesaler organizations</td>
+        <td>business_name, whatsapp_number, is_active, settings</td>
+      </tr>
+      <tr>
+        <td><strong>users</strong></td>
+        <td>Platform users per tenant</td>
+        <td>tenant_id, email, role, is_super_admin</td>
+      </tr>
+      <tr>
+        <td><strong>customers</strong></td>
+        <td>Retailers / end customers</td>
+        <td>tenant_id, phone, customer_type, total_orders</td>
+      </tr>
+      <tr>
+        <td><strong>product_categories</strong></td>
+        <td>Categories per tenant</td>
+        <td>tenant_id, name</td>
+      </tr>
+      <tr>
+        <td><strong>products</strong></td>
+        <td>Product catalog per tenant</td>
+        <td>tenant_id, sku, price, stock, tags</td>
+      </tr>
+      <tr>
+        <td><strong>orders</strong></td>
+        <td>Customer orders</td>
+        <td>tenant_id, customer_id, status, total, payment_method</td>
+      </tr>
+      <tr>
+        <td><strong>order_items</strong></td>
+        <td>Line items per order</td>
+        <td>order_id, product_id, quantity, unit_price</td>
+      </tr>
+      <tr>
+        <td><strong>whatsapp_conversations</strong></td>
+        <td>Chat sessions + state</td>
+        <td>tenant_id, customer_id, metadata (JSONB)</td>
+      </tr>
+      <tr>
+        <td><strong>whatsapp_messages</strong></td>
+        <td>Individual messages</td>
+        <td>conversation_id, direction, content, sent_at</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 style="margin-top: 28px;"><span class="section-number">6</span> <span class="text">Project Structure</span></h2>
+  <p class="section-subtitle">Repository organization and key files</p>
+
+  <div class="flow" style="font-size: 9pt; line-height: 2; white-space: pre; overflow-x: hidden;">
+/comandia
+├── /src                            &mdash; React frontend (dashboard)
+│   ├── /components                 &mdash; Reusable UI components (shadcn/ui)
+│   ├── /hooks                      &mdash; Zustand stores &amp; custom hooks
+│   ├── /lib                        &mdash; Supabase client, utilities, i18n
+│   ├── /pages                      &mdash; Page components (8 pages)
+│   └── /types                      &mdash; TypeScript type definitions
+├── /supabase
+│   └── /migrations
+│       ├── 001_initial_schema.sql  &mdash; Database schema (9 tables + RLS)
+│       └── 002_insert_products.sql &mdash; Product seed data (117 items)
+├── /n8n
+│   └── /workflows
+│       ├── hito4_workflow.json     &mdash; Main WhatsApp order workflow
+│       └── abandoned_cart_*.json   &mdash; Cart recovery workflow
+├── /docs
+│   ├── operations_guide.md         &mdash; Multi-client operations guide
+│   ├── milestones.md               &mdash; Project milestones &amp; budget
+│   └── README_BACKEND.md           &mdash; Technical documentation
+└── /public                         &mdash; Static assets
+  </div>
+
+  <h2 style="margin-top: 28px;"><span class="section-number">7</span> <span class="text">Operations Guide Summary</span></h2>
+  <p class="section-subtitle">Quick reference for day-to-day platform management</p>
+
+  <h4>Adding a New Tenant</h4>
+  <ol>
+    <li>Insert record into <code>tenants</code> table with business info</li>
+    <li>Create product categories for the tenant</li>
+    <li>Upload product catalog (manually or via CSV import)</li>
+    <li>Create admin user in <code>users</code> table</li>
+    <li>Configure WhatsApp number in Twilio and update tenant record</li>
+  </ol>
+
+  <h4>WhatsApp Configuration</h4>
+  <ol>
+    <li>Set up Twilio account with WhatsApp Business number</li>
+    <li>Configure webhook URL pointing to n8n workflow</li>
+    <li>Update tenant's <code>whatsapp_number</code> field</li>
+    <li>Test with sandbox code ("join [keyword]")</li>
+  </ol>
+
+  <h4>Backup Procedures</h4>
+  <ul>
+    <li><strong>Database:</strong> Supabase automatic daily backups (Pro plan) or manual pg_dump</li>
+    <li><strong>Workflows:</strong> Export n8n workflows as JSON and store in repository</li>
+    <li><strong>Code:</strong> Git repository with regular commits and remote push</li>
+  </ul>
+
+  <h4>Deactivating a Client</h4>
+  <ol>
+    <li>Set <code>is_active = false</code> on the tenant record</li>
+    <li>Remove webhook from Twilio to stop message processing</li>
+    <li>Data is preserved but inaccessible through the platform</li>
+  </ol>
+
+  <div class="highlight-box blue" style="margin-top: 28px;">
+    <strong>Full documentation available in the repository:</strong>
+    <ul style="margin-top: 8px;">
+      <li><code>docs/operations_guide.md</code> &mdash; Complete operations manual</li>
+      <li><code>docs/README_BACKEND.md</code> &mdash; Technical documentation</li>
+      <li><code>docs/milestones.md</code> &mdash; Budget and milestone tracking</li>
+    </ul>
+  </div>
+
+  <h2 style="margin-top: 28px;"><span class="section-number">8</span> <span class="text">Environment Setup</span></h2>
+  <p class="section-subtitle">Required credentials and configuration</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Service</th>
+        <th>Variable</th>
+        <th>Where Used</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Supabase</strong></td>
+        <td>SUPABASE_URL</td>
+        <td>Frontend + n8n</td>
+      </tr>
+      <tr>
+        <td><strong>Supabase</strong></td>
+        <td>SUPABASE_ANON_KEY</td>
+        <td>Frontend (public)</td>
+      </tr>
+      <tr>
+        <td><strong>Supabase</strong></td>
+        <td>SUPABASE_SERVICE_KEY</td>
+        <td>n8n only (server-side)</td>
+      </tr>
+      <tr>
+        <td><strong>Twilio</strong></td>
+        <td>TWILIO_ACCOUNT_SID</td>
+        <td>n8n workflow</td>
+      </tr>
+      <tr>
+        <td><strong>Twilio</strong></td>
+        <td>TWILIO_AUTH_TOKEN</td>
+        <td>n8n workflow</td>
+      </tr>
+      <tr>
+        <td><strong>Twilio</strong></td>
+        <td>TWILIO_WHATSAPP_FROM</td>
+        <td>n8n workflow</td>
+      </tr>
+      <tr>
+        <td><strong>OpenAI</strong></td>
+        <td>OPENAI_API_KEY</td>
+        <td>n8n credential store</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Running the Dashboard Locally</h3>
+  <div class="flow">
+    $ npm install          &mdash; Install dependencies
+    $ npm run dev          &mdash; Start development server (http://localhost:5173)
+    $ npm run build        &mdash; Production build
+  </div>
+
+  <h2 style="margin-top: 36px;"><span class="section-number">9</span> <span class="text">Project Timeline</span></h2>
+  <p class="section-subtitle">Development progression week by week</p>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <span class="date">Week 1</span>
+      <div class="title">Foundation &amp; Architecture</div>
+      <div class="desc">Supabase project setup, 9-table schema, 19 RLS policies, tenant creation flow.</div>
+    </div>
+    <div class="timeline-item">
+      <span class="date">Week 2</span>
+      <div class="title">Data Model &amp; Order Flow</div>
+      <div class="desc">Products, customers, orders CRUD. 117 products seeded. Order lifecycle implemented.</div>
+    </div>
+    <div class="timeline-item">
+      <span class="date">Week 3</span>
+      <div class="title">WhatsApp Integration</div>
+      <div class="desc">Twilio setup, n8n webhook workflow, message handling, conversation state management.</div>
+    </div>
+    <div class="timeline-item">
+      <span class="date">Week 4</span>
+      <div class="title">Dashboard &amp; Analytics</div>
+      <div class="desc">React dashboard with KPIs, charts (Recharts), filters, bilingual support.</div>
+    </div>
+    <div class="timeline-item">
+      <span class="date">Week 5</span>
+      <div class="title">Client Onboarding &amp; AI Sales</div>
+      <div class="desc">Mango Biche onboarded. AI sales rules: upsell, combos, star products, cart recovery.</div>
+    </div>
+    <div class="timeline-item">
+      <span class="date">Week 6</span>
+      <div class="title">Documentation &amp; Finalization</div>
+      <div class="desc">Operations guide, QA, code cleanup, frontend connected to live data, final delivery.</div>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="text-align: center; margin-top: 32px;">
+    <p style="font-size: 14pt; font-weight: 700; color: #15803d; margin-bottom: 4px;">
+      Project Status: 100% Complete
+    </p>
+    <p style="font-size: 10pt; color: #166534; margin: 0;">
+      All 6 milestones delivered &bull; USD $2,000 total &bull; Ready for production
+    </p>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Search,
   Download,
@@ -39,7 +39,11 @@ import { Order, OrderStatus } from '@/types';
 export function Orders() {
   const { t, currency, dateTime, language } = useLanguage();
   const { currentTenant } = useAppStore();
-  const { getOrdersByTenant, updateOrderStatus, deleteOrder } = useOrdersStore();
+  const { getOrdersByTenant, updateOrderStatus, deleteOrder, loadOrders } = useOrdersStore();
+
+  useEffect(() => {
+    if (currentTenant) loadOrders(currentTenant.id);
+  }, [currentTenant, loadOrders]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');

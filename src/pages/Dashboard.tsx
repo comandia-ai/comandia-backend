@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import {
   DollarSign,
   ShoppingCart,
@@ -9,6 +9,7 @@ import {
   Package,
   MessageCircle,
   ArrowRight,
+  Loader2,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -28,8 +29,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useAppStore, useOrdersStore } from '@/hooks/useStore';
-import { generateDashboardStats } from '@/data/mockData';
+import { useAppStore, useOrdersStore, useDashboardStore } from '@/hooks/useStore';
 import { cn, getStatusColor } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 
@@ -38,21 +38,33 @@ const COLORS = ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'
 export function Dashboard() {
   const { t, currency } = useLanguage();
   const { currentTenant, currentUser } = useAppStore();
-  const { getOrdersByTenant } = useOrdersStore();
+  const { orders, loadOrders } = useOrdersStore();
+  const { stats, loading, loadStats } = useDashboardStore();
 
-  const stats = useMemo(() => {
-    if (!currentTenant) return null;
-    return generateDashboardStats(currentTenant.id);
-  }, [currentTenant]);
+  useEffect(() => {
+    if (currentTenant) {
+      loadStats(currentTenant.id);
+      loadOrders(currentTenant.id);
+    }
+  }, [currentTenant, loadStats, loadOrders]);
 
   const recentOrders = useMemo(() => {
     if (!currentTenant) return [];
-    return getOrdersByTenant(currentTenant.id)
+    return orders
+      .filter(o => o.tenantId === currentTenant.id)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 5);
-  }, [currentTenant, getOrdersByTenant]);
+  }, [currentTenant, orders]);
 
-  if (!stats || !currentTenant) return null;
+  if (!currentTenant) return null;
+
+  if (loading || !stats) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   const kpiCards = [
     {

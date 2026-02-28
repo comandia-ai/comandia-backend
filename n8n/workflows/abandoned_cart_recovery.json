@@ -1,0 +1,173 @@
+{
+  "name": "COMANDIA - Abandoned Cart Recovery",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "id": "cart-recovery-0001",
+      "name": "Every 30 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const supabaseUrl = $env.SUPABASE_URL;\nconst serviceRoleKey = $env.SUPABASE_SERVICE_ROLE_KEY;\nconst headers = {\n  'apikey': serviceRoleKey,\n  'Authorization': `Bearer ${serviceRoleKey}`,\n  'Content-Type': 'application/json'\n};\n\n// Find conversations updated 30-120 min ago with active ordering state\nconst thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();\nconst twoHoursAgo = new Date(Date.now() - 120 * 60 * 1000).toISOString();\n\ntry {\n  const conversations = await this.helpers.httpRequest({\n    method: 'GET',\n    url: `${supabaseUrl}/rest/v1/whatsapp_conversations?select=id,phone,metadata,customer_id,updated_at&status=eq.active&updated_at=lt.${thirtyMinAgo}&updated_at=gt.${twoHoursAgo}`,\n    headers\n  });\n\n  // Filter only those with active ordering states (not idle, not already confirmed)\n  const abandoned = conversations.filter(c => {\n    const state = c.metadata?.state;\n    return state && state !== 'idle' && state !== 'confirming';\n  });\n\n  if (abandoned.length === 0) {\n    return [{ json: { count: 0, message: 'No abandoned carts found' } }];\n  }\n\n  return abandoned.map(c => ({\n    json: {\n      conversation_id: c.id,\n      phone: c.phone,\n      state: c.metadata?.state || 'unknown',\n      draft_order: c.metadata?.draft_order || null,\n      has_items: !!(c.metadata?.draft_order?.items?.length)\n    }\n  }));\n} catch (error) {\n  return [{ json: { count: 0, error: error.message } }];\n}"
+      },
+      "id": "cart-recovery-0002",
+      "name": "Find Abandoned Carts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [280, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "cond-has-phone",
+              "leftValue": "={{ $json.phone }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "isNotEmpty"
+              }
+            }
+          ]
+        }
+      },
+      "id": "cart-recovery-0003",
+      "name": "Has Phone?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [520, 300]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const input = $input.first().json;\nconst state = input.state;\nconst hasItems = input.has_items;\n\nlet message = '';\n\nif (state === 'ordering' && hasItems) {\n  message = 'Hola! Vi que estabas armando un pedido con nosotros. ¿Te ayudo a completarlo? Recuerda que nuestro Mango Biche y el de Café son los favoritos de nuestros clientes 😊🧊';\n} else if (state === 'ordering') {\n  message = 'Hola! Vi que estabas viendo nuestro menú. ¿Te puedo ayudar a elegir? Nuestro Granizado de Mango Biche es el más pedido, y el de Café es una delicia 😊';\n} else if (state === 'collecting_address') {\n  message = 'Hola! Tu pedido está casi listo, solo me falta la dirección de entrega. ¿A dónde te lo enviamos para que lo disfrutes bien frío? 🧊';\n} else if (state === 'collecting_phone') {\n  message = 'Hola! Ya casi completamos tu pedido. Solo necesito un número de contacto para el repartidor. ¿Me lo compartes? 📱';\n} else if (state === 'collecting_payment') {\n  message = 'Hola! Tu pedido está listo para salir. Solo falta el método de pago: ¿Efectivo o Transferencia? Aceptamos Nequi, Daviplata y Bancolombia 💰';\n} else {\n  message = 'Hola! ¿Sigues por ahí? Nuestros granizados artesanales están esperándote. ¿Te ayudo con algo? 😊';\n}\n\nreturn [{ json: { ...input, recovery_message: message } }];"
+      },
+      "id": "cart-recovery-0004",
+      "name": "Build Recovery Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [760, 200]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const input = $input.first().json;\n\nconst twilioSid = $env.TWILIO_SID;\nconst twilioAuth = $env.TWILIO_AUTH;\nconst twilioFrom = $env.TWILIO_FROM || 'whatsapp:+14155238886';\nconst customerPhone = input.phone;\nconst message = input.recovery_message;\n\nconst body = `From=${encodeURIComponent(twilioFrom)}&To=${encodeURIComponent('whatsapp:' + customerPhone)}&Body=${encodeURIComponent(message)}`;\n\ntry {\n  const response = await this.helpers.httpRequest({\n    method: 'POST',\n    url: `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`,\n    headers: {\n      'Content-Type': 'application/x-www-form-urlencoded',\n      'Authorization': 'Basic ' + Buffer.from(`${twilioSid}:${twilioAuth}`).toString('base64')\n    },\n    body\n  });\n\n  return [{\n    json: {\n      success: true,\n      phone: customerPhone,\n      state: input.state,\n      message_sid: response.sid,\n      message_sent: message\n    }\n  }];\n} catch (error) {\n  return [{\n    json: {\n      success: false,\n      phone: customerPhone,\n      error: error.message\n    }\n  }];\n}"
+      },
+      "id": "cart-recovery-0005",
+      "name": "Send Recovery via Twilio",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1020, 200]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const input = $input.first().json;\n\nconst supabaseUrl = $env.SUPABASE_URL;\nconst serviceRoleKey = $env.SUPABASE_SERVICE_ROLE_KEY;\n\nif (!input.success || !input.conversation_id) {\n  return [{ json: { ...input, saved: false } }];\n}\n\ntry {\n  // Save the recovery message as outbound\n  await this.helpers.httpRequest({\n    method: 'POST',\n    url: `${supabaseUrl}/rest/v1/whatsapp_messages`,\n    headers: {\n      'apikey': serviceRoleKey,\n      'Authorization': `Bearer ${serviceRoleKey}`,\n      'Content-Type': 'application/json',\n      'Prefer': 'return=minimal'\n    },\n    body: JSON.stringify({\n      tenant_id: 'ada3b48e-ddf4-4984-b039-e99caa19cfa3',\n      conversation_id: input.conversation_id,\n      direction: 'outbound',\n      message_type: 'text',\n      content: input.message_sent,\n      status: 'sent'\n    })\n  });\n\n  return [{ json: { ...input, saved: true } }];\n} catch (error) {\n  return [{ json: { ...input, saved: false, save_error: error.message } }];\n}"
+      },
+      "id": "cart-recovery-0006",
+      "name": "Save Recovery Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1280, 200]
+    },
+    {
+      "parameters": {},
+      "id": "cart-recovery-0007",
+      "name": "No Abandoned Carts",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [760, 420]
+    }
+  ],
+  "connections": {
+    "Every 30 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Find Abandoned Carts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Abandoned Carts": {
+      "main": [
+        [
+          {
+            "node": "Has Phone?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Phone?": {
+      "main": [
+        [
+          {
+            "node": "Build Recovery Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Abandoned Carts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Recovery Message": {
+      "main": [
+        [
+          {
+            "node": "Send Recovery via Twilio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Recovery via Twilio": {
+      "main": [
+        [
+          {
+            "node": "Save Recovery Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-02-27T00:00:00.000Z",
+  "versionId": "1"
+}

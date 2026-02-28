@@ -49,7 +49,7 @@
 
 ---
 
-### Hito 5 - Incorporación y validación de su primer cliente — USD $150
+### ✅ Hito 5 - Incorporación y validación de su primer cliente — USD $150
 
 - Configuración de su primer inquilino
 - Configuración de un número de WhatsApp
@@ -60,7 +60,7 @@
 
 ---
 
-### Hito 6 - Documentación y guía de escalabilidad — USD $100
+### ✅ Hito 6 - Documentación y guía de escalabilidad — USD $100
 
 - Control de calidad general del sistema
 - Corrección de errores y estabilización
@@ -82,7 +82,7 @@
 | 2 | Modelo de datos de pedidos | $500 | ✅ Completado |
 | 3 | Integración WhatsApp | $350 | ✅ Completado |
 | 4 | Panel de métricas clave | $300 | ✅ Completado |
-| 5 | Onboarding primer cliente | $150 | ⏳ En progreso |
-| 6 | Documentación y escalabilidad | $100 | ⏳ Pendiente |
+| 5 | Onboarding primer cliente | $150 | ✅ Completado |
+| 6 | Documentación y escalabilidad | $100 | ✅ Completado |
 
 **Total del proyecto: USD $2,000**

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle, Building2, Mail, Lock, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,11 @@ export function Login() {
   const navigate = useNavigate();
   const { t, language, changeLanguage } = useLanguage();
   const { login } = useAppStore();
-  const { tenants } = useTenantsStore();
+  const { tenants, loadTenants } = useTenantsStore();
+
+  useEffect(() => {
+    loadTenants();
+  }, [loadTenants]);
 
   const [selectedTenant, setSelectedTenant] = useState('');
   const [email, setEmail] = useState('');
@@ -31,16 +35,13 @@ export function Login() {
     setError('');
     setIsLoading(true);
 
-    // Simulate loading
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
     if (!selectedTenant) {
       setError(language === 'es' ? 'Seleccione una empresa' : 'Select a company');
       setIsLoading(false);
       return;
     }
 
-    const success = login(selectedTenant, email || 'demo@example.com');
+    const success = await login(selectedTenant, email || 'demo@example.com');
     if (success) {
       navigate('/dashboard');
     } else {
