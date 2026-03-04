@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Login } from '@/pages/Login';
@@ -9,6 +10,7 @@ import { WhatsAppDemo } from '@/pages/WhatsAppDemo';
 import { Analytics } from '@/pages/Analytics';
 import { Settings } from '@/pages/Settings';
 import { useAppStore } from '@/hooks/useStore';
+import { getSession, onAuthStateChange } from '@/lib/supabase';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAppStore();
@@ -21,6 +23,38 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+  const [checking, setChecking] = useState(true);
+  const { isAuthenticated, logout } = useAppStore();
+
+  useEffect(() => {
+    // Verify session on mount — if Zustand says authenticated but no Supabase session, force logout
+    getSession().then((session) => {
+      if (!session && isAuthenticated) {
+        logout();
+      }
+      setChecking(false);
+    }).catch(() => {
+      setChecking(false);
+    });
+
+    // Listen for auth state changes (token refresh, sign out from another tab)
+    const { data: { subscription } } = onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        logout();
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (checking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   return (
     <BrowserRouter>
       <Routes>

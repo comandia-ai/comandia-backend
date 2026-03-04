@@ -2,9 +2,37 @@ import { createClient } from '@supabase/supabase-js';
 import type { Tenant, User, Product, Customer, Order, OrderItem, Conversation, ChatMessage, DashboardStats, OrderStatus, OrderSource } from '@/types';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+  },
+});
+
+// --- Auth Helpers ---
+
+export async function signIn(email: string, password: string) {
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+  return data;
+}
+
+export async function signOut() {
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
+}
+
+export async function getSession() {
+  const { data: { session }, error } = await supabase.auth.getSession();
+  if (error) throw error;
+  return session;
+}
+
+export function onAuthStateChange(callback: (event: string, session: any) => void) {
+  return supabase.auth.onAuthStateChange(callback);
+}
 
 // --- Data Transformers (DB → Frontend Types) ---
 
@@ -22,7 +50,7 @@ const segmentToDb: Record<string, string> = {
   'inactive': 'inactive',
 };
 
-function toTenant(row: any): Tenant {
+export function toTenant(row: any): Tenant {
   return {
     id: row.id,
     name: row.business_name || row.name,

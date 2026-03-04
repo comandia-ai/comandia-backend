@@ -2,8 +2,11 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Language, Tenant, User, Product, Customer, Order, Conversation, ChatMessage, OrderStatus, DashboardStats } from '@/types';
 import {
+  supabase,
+  signIn,
+  signOut,
+  toTenant,
   fetchTenants,
-  fetchUsers,
   fetchProducts,
   createProduct,
   updateProductDb,
@@ -18,7 +21,6 @@ import {
   fetchConversations,
   generateDashboardStatsFromDb,
 } from '@/lib/supabase';
-import { generateId } from '@/lib/utils';
 
 // App Store
 interface AppState {
@@ -30,8 +32,8 @@ interface AppState {
   setLanguage: (language: Language) => void;
   setCurrentTenant: (tenant: Tenant | null) => void;
   setCurrentUser: (user: User | null) => void;
-  login: (tenantId: string, email: string) => Promise<boolean>;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<boolean>;
+  logout: () => Promise<void>;
   toggleSidebar: () => void;
 }
 
@@ -46,36 +48,50 @@ export const useAppStore = create<AppState>()(
       setLanguage: (language) => set({ language }),
       setCurrentTenant: (tenant) => set({ currentTenant: tenant }),
       setCurrentUser: (user) => set({ currentUser: user }),
-      login: async (tenantId, email) => {
+      login: async (email, password) => {
         try {
-          const allTenants = await fetchTenants();
-          const tenant = allTenants.find(t => t.id === tenantId);
-          if (!tenant) return false;
+          const authData = await signIn(email, password);
+          const authUser = authData.user;
+          if (!authUser) return false;
 
-          const users = await fetchUsers(tenantId);
-          const user = users.find(u => u.email === email);
+          // Fetch user row from users table (RLS uses auth.uid())
+          const { data: userRow, error: userError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', authUser.id)
+            .single();
+          if (userError || !userRow) return false;
 
-          if (user) {
-            set({ currentTenant: tenant, currentUser: user, isAuthenticated: true });
-            return true;
-          }
+          // Fetch tenant
+          const { data: tenantRow, error: tenantError } = await supabase
+            .from('tenants')
+            .select('*')
+            .eq('id', userRow.tenant_id)
+            .single();
+          if (tenantError || !tenantRow) return false;
 
-          // For demo: allow any email with matching tenant
-          const demoUser: User = {
-            id: generateId(),
-            tenantId: tenant.id,
-            email,
-            name: email.split('@')[0],
-            role: 'admin',
-            createdAt: new Date(),
+          const tenant = toTenant(tenantRow);
+          const user: User = {
+            id: userRow.id,
+            tenantId: userRow.tenant_id,
+            email: userRow.email,
+            name: userRow.full_name || email.split('@')[0],
+            role: userRow.role === 'super_admin' ? 'admin' : userRow.role,
+            avatar: userRow.avatar_url,
+            createdAt: new Date(userRow.created_at),
+            lastLogin: userRow.last_login_at ? new Date(userRow.last_login_at) : undefined,
           };
-          set({ currentTenant: tenant, currentUser: demoUser, isAuthenticated: true });
+
+          set({ currentTenant: tenant, currentUser: user, isAuthenticated: true });
           return true;
         } catch {
           return false;
         }
       },
-      logout: () => set({ currentTenant: null, currentUser: null, isAuthenticated: false }),
+      logout: async () => {
+        await signOut().catch(() => {});
+        set({ currentTenant: null, currentUser: null, isAuthenticated: false });
+      },
       toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
     }),
     {

@@ -1,30 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Building2, Mail, Lock, ArrowRight, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useAppStore, useTenantsStore } from '@/hooks/useStore';
+import { useAppStore } from '@/hooks/useStore';
 
 export function Login() {
   const navigate = useNavigate();
   const { t, language, changeLanguage } = useLanguage();
   const { login } = useAppStore();
-  const { tenants, loadTenants } = useTenantsStore();
 
-  useEffect(() => {
-    loadTenants();
-  }, [loadTenants]);
-
-  const [selectedTenant, setSelectedTenant] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -33,19 +20,18 @@ export function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
 
-    if (!selectedTenant) {
-      setError(language === 'es' ? 'Seleccione una empresa' : 'Select a company');
-      setIsLoading(false);
+    if (!email || !password) {
+      setError(language === 'es' ? 'Ingrese email y contraseña' : 'Enter email and password');
       return;
     }
 
-    const success = await login(selectedTenant, email || 'demo@example.com');
+    setIsLoading(true);
+    const success = await login(email, password);
     if (success) {
       navigate('/dashboard');
     } else {
-      setError(language === 'es' ? 'Error al iniciar sesion' : 'Login failed');
+      setError(language === 'es' ? 'Email o contraseña incorrectos' : 'Invalid email or password');
     }
     setIsLoading(false);
   };
@@ -140,35 +126,6 @@ export function Login() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Tenant Selection */}
-            <div className="space-y-2">
-              <Label htmlFor="tenant" className="text-slate-700">
-                {t('auth.selectTenant')}
-              </Label>
-              <Select value={selectedTenant} onValueChange={setSelectedTenant}>
-                <SelectTrigger className="h-12">
-                  <SelectValue placeholder={language === 'es' ? 'Seleccionar empresa...' : 'Select company...'} />
-                </SelectTrigger>
-                <SelectContent>
-                  {tenants.map((tenant) => (
-                    <SelectItem key={tenant.id} value={tenant.id}>
-                      <div className="flex items-center gap-2">
-                        {tenant.logo ? (
-                          <img src={tenant.logo} alt="" className="w-6 h-6 rounded object-cover" />
-                        ) : (
-                          <Building2 className="w-6 h-6 text-slate-400" />
-                        )}
-                        <div>
-                          <span className="font-medium">{tenant.name}</span>
-                          <span className="text-slate-400 ml-2 text-xs">({tenant.city})</span>
-                        </div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
             {/* Email */}
             <div className="space-y-2">
               <Label htmlFor="email" className="text-slate-700">
@@ -230,14 +187,6 @@ export function Login() {
             </Button>
           </form>
 
-          {/* Demo note */}
-          <div className="mt-8 p-4 bg-slate-50 rounded-lg border border-slate-200">
-            <p className="text-sm text-slate-600 text-center">
-              {language === 'es'
-                ? 'Demo: Seleccione cualquier empresa y use cualquier email'
-                : 'Demo: Select any company and use any email'}
-            </p>
-          </div>
         </div>
       </div>
     </div>
